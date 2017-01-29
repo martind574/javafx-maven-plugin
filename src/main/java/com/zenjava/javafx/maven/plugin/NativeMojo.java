@@ -321,7 +321,27 @@ public class NativeMojo extends AbstractJfxToolsMojo {
      * @parameter default-value="jks"
      */
     protected String keyStoreType;
-
+    
+    /**
+     * If "-tsa http://example.tsa.url" appears on the command line when signing a JAR file then a timestamp is generated for the signature. 
+     * The URL, http://example.tsa.url, identifies the location of the Time Stamping Authority (TSA). It overrides any URL found via the -tsacert option. 
+     * The -tsa option does not require the TSA's public key certificate to be present in the keystore.
+     * To generate the timestamp, jarsigner communicates with the TSA using the Time-Stamp Protocol (TSP) defined in RFC 3161. 
+     * If successful, the timestamp token returned by the TSA is stored along with the signature in the signature block file.
+     * 
+     * @parameter
+     */
+    protected String keyTsaUrl;
+    
+    /**
+     * If "-tsacert alias" appears on the command line when signing a JAR file then a timestamp is generated for the signature. 
+     * The alias identifies the TSA's public key certificate in the keystore that is currently in effect. 
+     * The entry's certificate is examined for a Subject Information Access extension that contains a URL identifying the location of the TSA. 
+     * 
+     * @parameter
+     */
+    protected String keyTsaCert;
+    
     /**
      * Since Java version 1.8.0 Update 60 a new bundler for generating JNLP-files was introduced,
      * but lacks the ability to sign jar-files by passing some flag. We are signing the files in the
@@ -996,6 +1016,19 @@ public class NativeMojo extends AbstractJfxToolsMojo {
         command.add(keyStorePassword);
         command.add("-keypass");
         command.add(keyPassword);
+        
+        if (keyTsaUrl != null) {
+        
+        	command.add("-tsa");
+        	command.add(keyTsaUrl);
+        }
+        
+        if (keyTsaCert != null) {
+        	
+        	command.add("-tsacert");
+        	command.add(keyTsaCert);
+        }
+        
         command.add(jarFile.getAbsolutePath());
         command.add(keyStoreAlias);
         if( verbose ){
